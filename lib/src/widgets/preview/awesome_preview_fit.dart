@@ -150,12 +150,10 @@ class PreviewFitWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final transformController = TransformationController();
-    transformController.value = Matrix4.identity()..scale(scale);
-
-    return Container(
+    final transformController = TransformationController()
+      ..value = (Matrix4.identity()..scale(scale));
+    return Align(
       alignment: alignment,
-      constraints: constraints,
       child: SizedBox(
         width: maxSize.width,
         height: maxSize.height,
@@ -225,7 +223,7 @@ class PreviewSizeCalculator {
   }
 
   Size _computeMaxSize() {
-    final nativePreviewSize = Size(previewSize.width, previewSize.height);
+    var nativePreviewSize = previewSize.toSize();
     Size maxSize;
     final nativeWidthProjection = constraints.maxWidth * 1 / zoom;
     final wDiff = nativePreviewSize.width - nativeWidthProjection;
@@ -263,6 +261,7 @@ class PreviewSizeCalculator {
         );
         break;
     }
+
     return maxSize;
   }
 
@@ -275,24 +274,26 @@ class PreviewSizeCalculator {
 
   double _computeZoom() {
     late double ratio;
+    var nativePreviewSize = previewSize.toSize();
+
     switch (previewFit) {
       case CameraPreviewFit.fitWidth:
-        ratio = constraints.maxWidth / previewSize.width;
+        ratio = constraints.maxWidth / nativePreviewSize.width; // 800 / 960
         break;
       case CameraPreviewFit.fitHeight:
-        ratio = constraints.maxHeight / previewSize.height;
+        ratio = constraints.maxHeight / nativePreviewSize.height; // 1220 / 1280
         break;
       case CameraPreviewFit.cover:
         if (constraints.maxWidth / constraints.maxHeight >
-            previewSize.width / previewSize.height) {
-          ratio = constraints.maxWidth / previewSize.width;
+            nativePreviewSize.width / nativePreviewSize.height) {
+          ratio = constraints.maxWidth / nativePreviewSize.width;
         } else {
-          ratio = constraints.maxHeight / previewSize.height;
+          ratio = constraints.maxHeight / nativePreviewSize.height;
         }
         break;
       case CameraPreviewFit.contain:
-        final ratioW = constraints.maxWidth / previewSize.width;
-        final ratioH = constraints.maxHeight / previewSize.height;
+        final ratioW = constraints.maxWidth / nativePreviewSize.width;
+        final ratioH = constraints.maxHeight / nativePreviewSize.height;
         final minRatio = min(ratioW, ratioH);
         ratio = minRatio;
         break;
